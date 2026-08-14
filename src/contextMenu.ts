@@ -38,7 +38,15 @@ export class XYZModemContextMenuProvider extends TerminalContextMenuItemProvider
                 click: () => {
                     this.xyzmodem.receiveFile(tab, 'ymodem')
                 },
-            }
+            },
+            {
+                label: 'Send file (ZMODEM)',
+                click: () => this.xyzmodem.sendFile(tab, 'zmodem'),
+            },
+            {
+                label: 'Receive file (ZMODEM)',
+                click: () => this.xyzmodem.receiveFile(tab, 'zmodem'),
+            },
         ]
     }
 }

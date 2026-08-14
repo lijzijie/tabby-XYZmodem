@@ -8,7 +8,7 @@ const CAN = 0x18
 const CRC_C = 0x43 // 'C'
 
 // Simple CRC16 CCITT
-function crc16(buffer: Buffer): number {
+export function crc16(buffer: Buffer): number {
     let crc = 0;
     for (let i = 0; i < buffer.length; i++) {
         crc ^= buffer[i] << 8;

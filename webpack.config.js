@@ -9,6 +9,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'index.js',
+    hashFunction: 'sha256',
     pathinfo: true,
     libraryTarget: 'umd',
     devtoolModuleFilenameTemplate: 'webpack-tabby-clippy:///[resource-path]',

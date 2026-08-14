@@ -1,0 +1,5 @@
+This distribution includes zmodem.js (https://github.com/FGasper/zmodemjs),
+copyright Gasper Software Consulting, licensed under the Apache License 2.0.
+
+The zmodem.js license text is available in the installed dependency at
+node_modules/zmodem.js/LICENSE and from the upstream repository.

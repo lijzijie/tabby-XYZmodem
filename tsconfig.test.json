@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": ".test-dist",
+    "declaration": true,
+    "declarationDir": ".test-dist",
+    "sourceMap": false
+  },
+  "include": ["src/protocol.ts"]
+}

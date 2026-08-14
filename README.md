@@ -1,79 +1,45 @@
-# tabby-XYZmodem
+# tabby-xyzmodem
 
-A [Tabby](https://github.com/Eugeny/tabby) plugin that adds **XMODEM** and **YMODEM** file transfer support directly in the terminal.
+Tabby terminal plugin for serial file transfer with XMODEM, YMODEM, and ZMODEM.
 
 ## Features
 
-- 📤 Send files via **YMODEM** (CRC-16 mode, batch protocol)
-- 📤 Send files via **XMODEM** (CRC-16 mode)
-- 📊 **Real-time progress bar** in the terminal — percentage, speed (KB/s), block count
-- 🔌 Works with serial port connections (and any other session type)
-- 🛡️ Robust handshake with timeout/retry handling
+- Send and receive files through the active Tabby terminal session.
+- XMODEM CRC-16 and YMODEM batch/header transfer for bootloaders.
+- ZMODEM send/receive integration using `zmodem.js`, including CRC framing, progress, cancellation, and downloaded-file saving.
+- Context-menu commands for every protocol and direction.
+- No second serial connection is opened, so the active COM port remains owned by the terminal tab.
 
-## Screenshot
-
-![Transfer in progress](screenshot.png)
-
-## Usage
-
-1. Open a serial port tab in Tabby and connect to your device
-2. Start YMODEM/XMODEM receive on your device (e.g. `ymodem_recv`, `rz`, or a bootloader prompt)
-3. **Right-click** anywhere in the terminal
-4. Choose **Send file (YMODEM)** or **Send file (XMODEM)**
-5. Select your file — transfer starts immediately
-
-During the transfer, you will see a live progress line in the terminal:
-
-```
-📤 Starting YMODEM transfer: firmware.bin (91.2 KB)
- YMODEM │████████████░░░░░░░░░░░░│  52%  47.3/91.2 KB  3.2 KB/s  380/730 blocks
-✅ YMODEM transfer complete: firmware.bin
-```
+ZMODEM requires the remote side to run a compatible sender/receiver such as `sz`/`rz`. XMODEM and YMODEM require the bootloader to be placed in receive mode before sending.
 
 ## Installation
 
-### From Tabby Plugin Manager (recommended)
+Search for `tabby-xyzmodem` in Tabby's Plugin Manager, or install manually:
 
-Search for `tabby-XYZmodem` in Tabby's Plugin Manager.
-
-### Manual
-
-```bash
-cd %APPDATA%\tabby\plugins
-npm install tabby-xyzmodem
+```powershell
+cd "$env:APPDATA\tabby\plugins"
+npm install tabby-xyzmodem --legacy-peer-deps
 ```
 
-Or clone this repo and symlink it:
-
-```bash
-git clone git@github.com:lijzijie/tabby-XYZmodem.git
-cd %APPDATA%\tabby\plugins\node_modules
-# Windows (run as Administrator)
-mklink /D tabby-xyzmodem C:\path\to\tabby-XYZmodem
-```
-
-Then restart Tabby.
+Restart Tabby after installation. In a terminal tab, right-click and choose the required XMODEM, YMODEM, or ZMODEM action.
 
 ## Development
 
-```bash
-git clone git@github.com:lijzijie/tabby-XYZmodem.git
-cd tabby-XYZmodem
-npm install
-npm run build       # one-time build
-npm run build --watch  # watch mode
+```powershell
+npm ci
+npm run verify
+npm pack --dry-run
 ```
 
-## Protocol Implementation
+`npm run verify` performs TypeScript checking and a production webpack build. The `.npmrc` file keeps npm's peer-dependency resolution consistent with the Angular 12/Tabby toolchain.
 
-The XMODEM/YMODEM protocol is implemented from scratch in [`src/protocol.ts`](src/protocol.ts) without relying on third-party modem libraries. Key details:
+## Protocol notes
 
-- **CRC-16/CCITT** checksum (triggered by receiver sending `C`)
-- **YMODEM Block 0** — filename + file size header
-- **YMODEM end-of-session** — null header block (all 0x00) to signal no more files
-- **Retry on NAK** — up to 5 retries per block
-- **Proper EOT sequence** — first EOT → NAK → second EOT → ACK → C → null block
+- XMODEM/YMODEM use 128-byte blocks and CRC-16 negotiation.
+- YMODEM sends the filename/size header and the terminating empty header.
+- ZMODEM is binary and sender-driven; terminal text may briefly show the protocol's detection header.
+- None of these protocols provide authentication or encryption. Use them only on trusted serial links.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).

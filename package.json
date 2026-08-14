@@ -1,12 +1,14 @@
 {
   "name": "tabby-xyzmodem",
-  "version": "1.0.0",
-  "description": "XMODEM and YMODEM file transfer plugin for Tabby terminal",
+  "version": "1.1.0",
+  "description": "XMODEM, YMODEM and ZMODEM file transfer plugin for Tabby terminal",
   "keywords": [
     "tabby-plugin",
     "xmodem",
     "ymodem",
+    "zmodem",
     "serial",
+    "firmware",
     "file-transfer"
   ],
   "main": "dist/index.js",
@@ -20,19 +22,26 @@
     "url": "https://github.com/lijzijie/tabby-XYZmodem/issues"
   },
   "scripts": {
-    "build": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --progress --color",
-    "watch": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --progress --color --watch",
-    "prepublishOnly": "npm run build"
+    "build": "node scripts/build.js",
+    "watch": "node scripts/build.js --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test tests/protocol.test.js",
+    "verify": "npm run typecheck && npm test && npm run build",
+    "prepublishOnly": "npm run verify"
   },
   "files": [
     "dist",
-    "src",
     "README.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "NOTICE",
     "LICENSE"
   ],
-  "author": "lijzijie",
+  "author": "linzi",
   "license": "MIT",
   "devDependencies": {
+    "@angular/cdk": "^12.2.13",
     "@angular/animations": "^12.0.0",
     "@angular/common": "^12.0.0",
     "@angular/core": "^12.0.0",
@@ -51,10 +60,14 @@
     "tabby-core": "^1.0.156",
     "tabby-settings": "^1.0.156",
     "tabby-terminal": "^1.0.156",
-    "ts-loader": "^5.2.1",
-    "typescript": "^4.2.3",
+    "ts-loader": "^9.5.4",
+    "typescript": "~4.9.5",
     "webpack": "^5.24.4",
     "webpack-cli": "^4.5.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "xmodem.js": "^0.1.0",
+    "ymodem.js": "^0.0.1-1",
+    "zmodem.js": "^0.1.10"
+  }
 }

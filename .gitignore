@@ -1,5 +1,8 @@
 node_modules/
 dist/
+.test-dist/
+.npm-cache/
+*.tgz
 *.js.map
 yarn-error.log
 npm-debug.log

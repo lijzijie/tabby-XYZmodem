@@ -3,6 +3,7 @@ import { Logger, LogService, PlatformService } from 'tabby-core'
 import { BaseTerminalTabComponent } from 'tabby-terminal'
 import { BaseSession } from 'tabby-terminal'
 import { XModemTransfer, TransferProgress } from './protocol'
+import { ZmodemTransfer } from './zmodemTransfer'
 import { ReplaySubject, firstValueFrom } from 'rxjs'
 import { filter } from 'rxjs/operators'
 
@@ -64,6 +65,18 @@ export class XYZModemService {
                 realTab.write(line)
             }
 
+            if (protocol === 'zmodem') {
+                await new ZmodemTransfer({
+                    input$: rxReplay,
+                    write: (data: Buffer) => session.write(data),
+                    toTerminal: (data: Buffer) => realTab.write(data.toString()),
+                    log: (msg: string) => this.logger.info(msg),
+                    onProgress: (sent, total, name) => onProgress({ filename: name, sentBytes: sent, totalBytes: total, blocksTotal: 0, blocksSent: 0, speedBps: 0 }),
+                }).send(buffer, filename)
+                realTab.write(`\r\n\x1b[32mZMODEM transfer complete: ${filename}\x1b[0m\r\n`)
+                return
+            }
+
             const xfer = new XModemTransfer(
                 protocol === 'ymodem',
                 buffer,
@@ -87,9 +100,34 @@ export class XYZModemService {
         }
     }
 
-    async receiveFile (_tab: BaseTerminalTabComponent, protocol: 'xmodem' | 'ymodem' | 'zmodem') {
+    async receiveFile (tab: BaseTerminalTabComponent, protocol: 'xmodem' | 'ymodem' | 'zmodem') {
         this.logger.info(`Receiving file via ${protocol}`)
-        this.logger.warn(`${protocol} receive not fully implemented yet`)
+        if (protocol !== 'zmodem') {
+            this.logger.warn(`${protocol} receive is not implemented yet`)
+            return
+        }
+        const realTab = this.resolveTerminalTab(tab)
+        const session = realTab && await this.getSession(realTab)
+        if (!realTab || !session) throw new Error('No active terminal session')
+        const rx = new ReplaySubject<Buffer>(65536)
+        const sub = session.binaryOutput$.subscribe(buf => rx.next(buf))
+        try {
+            await new ZmodemTransfer({
+                input$: rx,
+                write: (data: Buffer) => session.write(data),
+                toTerminal: (data: Buffer) => realTab.write(data.toString()),
+                log: (msg: string) => this.logger.info(msg),
+                onReceive: async (name, size, data) => {
+                    const download = await this.platform.startDownload(name, 0o100644, size)
+                    if (!download) throw new Error('Download was cancelled')
+                    await download.write(data)
+                    download.close()
+                },
+            }).receive()
+        } finally {
+            sub.unsubscribe()
+            rx.complete()
+        }
     }
 
     /**
