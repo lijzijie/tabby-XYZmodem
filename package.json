@@ -1,6 +1,6 @@
 {
   "name": "tabby-xyzmodem",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "XMODEM, YMODEM and ZMODEM file transfer plugin for Tabby terminal",
   "keywords": [
     "tabby-plugin",
