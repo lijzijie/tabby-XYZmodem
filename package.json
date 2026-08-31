@@ -38,7 +38,7 @@
     "NOTICE",
     "LICENSE"
   ],
-  "author": "linzi",
+  "author": "ziggylin",
   "license": "MIT",
   "devDependencies": {
     "@angular/cdk": "^12.2.13",
